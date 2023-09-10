@@ -1,0 +1,32 @@
+AWS:
+'''
+
+capstone-proj-1 shared by vishwas:  
+https://github.com/Training-demo/aws-code-main
+
+AWS resources shared by migration educator:  
+https://drive.google.com/drive/folders/1M3-vhPMWQEk79nqBo2boHXO0JJ3--wpv
+
+=============================================================================================
+
+DEVOPS: 
+''''''
+
+devops link shared by nareshwarT: 
+https://drive.google.com/drive/folders/1uyHjFodHjMI4LK3chrTmH0blUBl1Ksy_
+
+labs drive link shared by nareshwarT: 
+https://github.com/lerndevops/labs/tree/master/git
+
+java code for maven: 
+https://github.com/lerndevops/samplejavaapp
+
+devops labs: 
+https://github.com/lerndevops/labs
+
+jenkins installation: 
+https://github.com/lerndevops/labs/tree/master/jenkins/Install
+
+plugins page: 
+https://raw.githubusercontent.com/lerndevops/labs/master/jenkins/Jenkins-Setup-CI.txt
+
