@@ -30,3 +30,5 @@ https://github.com/lerndevops/labs/tree/master/jenkins/Install
 plugins page: 
 https://raw.githubusercontent.com/lerndevops/labs/master/jenkins/Jenkins-Setup-CI.txt
 
+jenkins pipeline: 
+https://raw.githubusercontent.com/lerndevops/labs/master/jenkins/Configurations/trigger-build-with-github-webhook.txt
