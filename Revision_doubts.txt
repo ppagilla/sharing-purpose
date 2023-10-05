@@ -1,0 +1,130 @@
+COMMANDS: 
+
+Installing nginix on ubuntu: https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04
+sudo apt update; sudo apt install -y nginix; sudo systemctl status nginix
+sudo systemctl start/stop/restart/reload/disable/enable nginx
+
+Installing nginix on Amazon linux: 
+sudo yum update; sudo yum install -y nginix; sudo systemctl status nginix
+For mounting an EBS Volume: 
+mkdir mount-folder; mkfs -t ext4 /dev/xvdf; mount /dev/xvdf mount-folder			# if not works try with sudo 
+umount /dev/xvdf  																	# for unmounting
+lsblk																				# to know the devices mounted.
+
+For mounting an EFS: (for ec2 - need to have NFS/ALL traffic in the outbound; for efs mountpoint sg - need to have NFS traffic in inbound and ALL traffic in outbound)
+apt install nfs-common																#for ubuntu
+yum install -y nfs-utils															#for rhel
+
+
+==================================================================================================================================================================
+
+VERIFY THESE AGAIN: 
+
+FOR EC2: 
+create ec2 instance attach a ebs vol, mkfs, mount, add content, upgrade ebs volume, add content, umount, upgrade ebs volume, attach, add content, mkfs.
+sg-ec2: inbound ssh, outbound all traffic  ;   sg-efs: inbound ebs related traffic, outbound all traffic.
+
+create amazon linux, ubuntu, rhel, create efs with 2 mountpoints, mount for all 3 instances, add content in one instance and check for the content reflection in other instances.
+sg-ec2: inbound ssh, outbound all trafic   ;   sg-fsx: inbound NFS traffic, outbound all traffic.
+
+perform FSX assignment once more
+FSX traffic is SMB.
+sg attached for liux instance has inbound all tcp
+
+under additonal config, enable deletion restrict and try with root use and peer iam user
+
+created a ec2 with comp_lap.pem, now i have to ssh, then instead of direct comp_lap.pem, i have used copy.pem with same content. will it login???
+how to user user data option in ec2?
+#bin/bash
+echo "hai" > /home/sample
+
+how to create ami, if the ec2 has 2ebs attached
+
+where exacty the pvt key stored on ec2, which we selected via console????
+/etc/ssh/
+
+one doubt, related to creating ebs volume from a snapshot
+we create snapshot from 4gb ebs volume, then if we are creating volume from the created snapshot should we go >=4gb only? If we go <4gb then we may loss data, is this allowed(like decreasing ebs volume size)
+
+EFS: 
+If mountpoint is not created in one az then we can mount the instances of those with EFS.
+just a thought, a mount point is created witin a az means within subnet. so it takes an ip from subnet cidr itself.
+then within route table internal route entry, why the mounting can't happen?
+
+
+
+NEED TO KNOW - 
+can u explain about hibernate mode and billing under hibernate mode?
+
+Where all can Elastic ip is used? 
+NAT ok, ec2 any ENI.
+
+say we have made an ami, and we want to make it publicly available. how we do it?
+
+can we add the elastic ip to any ec2 instance at the time of creation or after creation???
+If elastic ip is created and not attached to anyone then it is chargable?? yes
+If elastic ip is created billing starts? no
+If elastic ip is created and attached to anyone then it is not chargable?? no
+
+scaling up is fine, how scaling down works????
+created a volume of 4gb and attached to ec2, filled with data of 3gb. Now we reduced size of data to 2gb then data will be lost?
+EBS volume can only be increased, no decrease happens
+
+1ebs with 2diff ec2 - is possible only for provisioned iops - 1o volume1,
+
+any recommended folder for Linux systems under which we need to mount a ebs
+
+
+ADDITIONAL INFO: 
+vpc: 
+security group is said to maintain state. 
+Lets say if we put inbound as only ssh, and in outbound as all traffic allowed. 
+Then by loggin into ec2 via ssh and we tried to install ansible/jenkins software which done over internet that include http/https protocol. 
+
+Now eventhough in inbound there is no rule for allowing traffic for http/https protocol, ec2 can accept this traffic. 
+This is because security group is maintaining state. 
+
+So, when a traffic is initiated by ec2(since all traffic is allowed, traffic will go out from ec2), 
+now response for this traffic is reached to ec2 on same/some other port which is not mentioned in inbound rules, 
+here still the communication will be success as SG is maintaining state/channel for receiving traffic for traffic initiated.
+
+====================================================================================================================================================================================
+
+FOR IAM: 
+Importance of role.
+say I have requirement to give ec2 full access to a user, generally we do it by adding ec2 full access policy to the user, 
+(the recomendded way is to create a group with ec2 full access and add user to the group.)
+
+Now, we can do the same by creating a role with ec2 full access policy and assign role to user. 
+
+If we do it, by
+providing access to user by directly by attaching policy, here he can directly access after logged into console.
+providing access to user by asigning role, here he cant directly access ec2 after logged into console, he again need to swith role to have ec2 full access. 
+
+I could see difference between using/accessing the assigned permissions/policies to the user by above two methods. 
+
+What should be the conceptual difference/main intenetion we need to understand by above two methods?
+
+
+Note: I knew that we can use roles to directly attach to a service(like ec2) to provide full access for ec2 over other services(like s3).(here we create role with s3 full access policy and assign role to ec2)
+Since we are providing access for a service we have to go by roles there is no other way(correct me if i am wrong). If it was user we can go by user/role method. 
+
+
+
+permissions attached to user and also a role attached to user, Now role also have some permissions attached.
+Now when using role, does the permission attached to user will have their effect? or just the role permissions are activated.
+lets say user has 5 permissions/policies attached. 
+and we have created a role and attached 3 permissions/policies 
+
+Now when the user logged in normally then he is having 5 permissions attached, (here he cant use 3 permissions attached for the role)==yes, confirmed
+then if he switched role then he has only 3 permission attached. (here he cant use 5 permissions attached for the role)==yes, confirmed
+
+
+clear picture on accesskey and acces tokens.
+
+If allow and deny are attached then which will work? i think deny will work.
+
+exact need for aws configure, i.e., configureing aws user and access key for the ec2 logged in user to access s3 buckets.
+
+NEED TO KNOW - 
+Active directory role in IAM.

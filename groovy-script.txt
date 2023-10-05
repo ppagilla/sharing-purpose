@@ -1,0 +1,68 @@
+pipeline{
+  agent any
+  stages{
+    stage('compile'){
+	  steps{
+	    echo 'compile step'
+		git 'https://github.com/ppagilla/samplejavaapp.git'
+		sh '/opt/maven/bin/mvn compile'
+	  }
+	  post{
+	    success{
+		  echo 'compile is success can add post build action if needed'
+		}
+	  }
+	}
+	
+    stage('verify'){
+	  steps{
+	    echo 'verify step'
+		sh '/opt/maven/bin/mvn -P metrics pmd:pmd'
+	  }
+	  post{
+	    success{
+		  echo 'verify is success can add post build action if needed like pmd analyzer'
+		  recordIssues(tools: [pmdParser()])
+		}
+	  }
+	}
+	
+    stage('test'){
+	  steps{
+	    echo 'test step'
+		sh '/opt/maven/bin/mvn test'
+	  }
+	  post{
+	    success{
+		  echo 'test is success can add post build action if needed like junit'
+		  junit 'target/surefire-reports/*.xml'
+		}
+	  }
+	}
+	
+    stage('code-coverage'){
+	  steps{
+	    echo 'code-coverage step'
+		sh '/opt/maven/bin/mvn verify'
+	  }
+	  post{
+	    success{
+		  echo 'code-coverage is success can add post build action if needed like jacoco'
+		  jacoco()
+		}
+	  }
+	}
+
+    stage('package'){
+	  steps{
+	    echo 'package step'
+		sh '/opt/maven/bin/mvn package'
+	  }
+	  post{
+	    success{
+		  echo 'package is success can add post build action if needed'
+		}
+	  }
+	}
+  }
+}
