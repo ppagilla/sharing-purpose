@@ -1,0 +1,942 @@
+case-1: with devops user, no ip or dns is pingable.
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 92
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+-rw-rw-r-- 1 ubuntu ubuntu    13 Oct  2 11:46 21invF
+-rw-rw-r-- 1 ubuntu ubuntu   704 Oct  2 12:02 27invF
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+ubuntu@ip-172-31-18-245:~$ 
+ubuntu@ip-172-31-18-245:~$ 
+ubuntu@ip-172-31-18-245:~$ 
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: Warning: Permanently added '3.109.150.106' (ED25519) to the list of known hosts.\r\ndevops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: Warning: Permanently added 'ec2-3-109-150-106.ap-south-1.compute.amazonaws.com' (ED25519) to the list of known hosts.\r\ndevops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: Warning: Permanently added 'ec2-3-109-221-68.ap-south-1.compute.amazonaws.com' (ED25519) to the list of known hosts.\r\ndevops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pubIP -m ping 
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pubIP -m ping -u devops -k
+SSH password: 
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pubIP -m ping 
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pubDNS -m ping -u devops -k
+SSH password: 
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pubDNS -m ping
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pvtIP -m ping -u devops -k
+SSH password: 
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pvtIP -m ping
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pvtDNS -m ping -u devops -k
+SSH password: 
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-16-249.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF pvtDNS -m ping 
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ 
+
+=========================================================================================================================================================
+
+case-2: with cli credentials everything is pingable
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 92
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+-rw-rw-r-- 1 ubuntu ubuntu    13 Oct  2 11:46 21invF
+-rw-rw-r-- 1 ubuntu ubuntu   704 Oct  2 12:02 27invF
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping -u devops -k
+SSH password: 
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-16-249.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ 
+========================================================================================================================================================
+
+case-3: with credentials key name changed, all the correct config servers are pingable.		# is the keynames predefined.
+
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr 
+total 92
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+-rw-rw-r-- 1 ubuntu ubuntu    13 Oct  2 11:46 21invF
+-rw-rw-r-- 1 ubuntu ubuntu   704 Oct  2 12:02 27invF
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_pvt_key_file=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_pvt_key_file=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ vi 27invF 
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_password=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_password=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_password=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_password=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_password=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_password=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_password=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ 
+
+==========================================================================================================================================================
+case-4 and 5
+with pwd or password present only able to successfully login else it is not pingable.
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr 
+total 92
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+-rw-rw-r-- 1 ubuntu ubuntu    13 Oct  2 11:46 21invF
+-rw-rw-r-- 1 ubuntu ubuntu   676 Oct  2 12:12 27invF
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_password=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_password=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_password=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_password=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_password=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_password=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_password=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ vi 27invF 
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops ansible_ssh_pwd=today@1234
+3.109.150.106 ansible_user=devops ansible_ssh_pwd=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops ansible_ssh_pwd=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+ansible_ssh_pwd=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops ansible_ssh_pwd=today@1234
+[pvtIP:vars]
+ansible_user=devops
+ansible_ssh_pwd=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops ansible_ssh_pwd=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.150.106 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.109.221.68 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ip-172-31-23-120.ap-south-1.compute.internal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ vi 27invF 
+ubuntu@ip-172-31-18-245:~$ cat 27invF 
+[pubIP]
+3.109.221.68 ansible_user=devops devops_key=today@1234
+3.109.150.106 ansible_user=devops devops_key=today@1234
+
+[pubDNS]
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com ansible_user=devops devops_key=today@1234
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=devops
+devops_key=today@1234
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=devops devops_key=today@1234
+[pvtIP:vars]
+ansible_user=devops
+devops_key=today@1234
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=devops devops_key=today@1234
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 27invF all -m ping
+3.109.221.68 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.221.68: Permission denied (publickey,password).",
+    "unreachable": true
+}
+3.109.150.106 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@3.109.150.106: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-150-106.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-150-106.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ec2-3-109-221-68.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ec2-3-109-221-68.ap-south-1.compute.amazonaws.com: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.16.249: Permission denied (publickey,password).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@172.31.23.120: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: devops@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey,password).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ 

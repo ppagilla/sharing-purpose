@@ -1,0 +1,46 @@
+
+Day -1	Monday 	    9 PM - 11 PM	Essentials of AWS and Cloud Computing
+Day -2	Wednesday	9 PM - 11 PM	Overview of AWS EC2 and EBS
+Day -3	Thursday	9 PM - 11 PM	Test
+Day -4	Monday 	    9 PM - 11 PM	Server Management Strategies
+Day -5	Wednesday	9 PM - 11 PM	DNS
+Day -6	Thursday	9 PM - 11 PM	Test
+Day -7	Monday 	    9 PM - 11 PM	Paas, Global Access and Backups on AWS
+Day -8	Wednesday	9 PM - 11 PM	Bulding and managing a network on AWS
+Day -9	Thursday	9 PM - 11 PM	Test
+Day -10	Monday 	    9 PM - 11 PM	File Storage and Access
+Day -11	Wednesday	9 PM - 11 PM	Test
+Day -12	Thursday	9 PM - 11 PM	Working with SQL and NoSQL
+Day -13	Monday 	    9 PM - 11 PM	Serverless on AWS
+Day -14	Wednesday	9 PM - 11 PM	Test
+Day -15	Thursday	9 PM - 11 PM	Migration on AWS
+
+=====================================================================================================================================================
+
+Essentials of AWS and Cloud Computing: 
+What is DCaaS?
+
+What is a pub service and a pvt service? and what is the difference between public and pvt services? 
+public services: s3(can restrict access) dbms(can launch in pvt sn so only pvt instances can access db), sns and sqs
+private service: VPC
+
+public cloud: anyone can create an account and start using the services(with vpc help we can restrict access to the resources)
+aws
+gcp
+azure
+==yes
+
+private cloud: similar to public cloud, but not accessible by everyone only to organization(security similar to on-prem, usage similar to pub. costly compared to pvt cloud). 
+
+
+on-premise dc: VMWare 
+-- we purchase from vendor and install the infra at organization location then purchase software license and use software to manage the resources/infra.
+-- or we purchase infra and software from vmware itself????
+openstack
+-- we purchase and install the infra from vendor and use free software license to manage the resources/infra  -> called as on-premise/private cloud.
+
+================
+inline policy gets deleted when the attached user is deleted??????????/
+see about roles???????????
+
+say user has rds policy attached, and role with ec2. now without role he can only rds, with role he can only access ec2. check???????????/

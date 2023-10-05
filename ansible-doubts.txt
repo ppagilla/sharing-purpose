@@ -1,0 +1,659 @@
+work: 
+13.200.21.198  
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+172.31.16.249
+
+ip-172-31-16-249.ap-south-1.compute.internal
+
+
+========================================
+DOUBT-1
+EVENTHOUGH there is faulty pem file name at both invfile level and command level, the ping command is success?//why this behaviour.
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 4invF pubIP -m ping -u ubuntu --private-key wo_lp.pem 
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ cat 4invF 
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_l.pem 
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+[pvtIP]
+172.31.16.249
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+
+ubuntu@ip-172-31-18-245:~$ 
+
+=======================================
+DOUBT-2: 
+EVENTHOUGH THERE IS NO CHANGE IN 4invF FILE CONTENT, FIRST IT FAILED TO PING, THEN IT PASSED TO PING?//why this behaviour.
+ubuntu@ip-172-31-18-245:~$ ansible -i 4invF pubIP -m ping
+13.200.21.198 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@13.200.21.198: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ vi 3invF 
+ubuntu@ip-172-31-18-245:~$ ansible -i 3invF pubIP -m ping -u ubuntu --private-key work_lp.pem
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 4invF pubIP -m ping
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ cat 4invF 
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem 
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+[pvtIP]
+172.31.16.249
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+
+ubuntu@ip-172-31-18-245:~$ 
+
+================================================================
+
+DOUBT-3
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 84
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+ubuntu@ip-172-31-18-245:~$ cat 7invF 
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+3.7.251.59 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping														N#HERE BOTH SHOULD PASS  ==> not working correctly, since both failed
+13.200.21.198 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@13.200.21.198: Permission denied (publickey).",
+    "unreachable": true
+}
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping -u ubuntu --private-key work_lp.pem 					S#ONE SHOULD FAIL AND ONE SHOULD SUCCESS  ==> working correctly because ip with work_lp.pem is working fine.
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping -u ubuntu --private-key pavan_lp.pem					N#ONE SHOULD FAIL AND ONE SHOULD SUCCESS  ==>  not working correctly because ip with work_lp.pem also success with pavan_lp.pem.
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.7.251.59 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping 														Y#HERE BOTH SHOULD PASS   ==> If compared with first case, now both passed without any diff in inv file. Why this is happening???
+3.7.251.59 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ 
+
+=============================================================================
+DOUBT-4:
+
+NONE OF THEM ARE REACHABLE, evnthough we have specified the credentials at individual level or group level
+
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 84
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+ubuntu@ip-172-31-18-245:~$ cat 7invF 
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+3.7.251.59 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF all -m ping 													# not working correctly, ideally except pvtDNS 1st entry all should be pingable.
+13.200.21.198 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@13.200.21.198: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-3-7-251-59.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-13-200-21-198.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.16.249: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.23.120: Permission denied (publickey).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping 																#not working correctly, not pingable
+13.200.21.198 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@13.200.21.198: Permission denied (publickey).",
+    "unreachable": true
+}
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubDNS -m ping 																#not working correctly, not pingable
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-13-200-21-198.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-3-7-251-59.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtIP -m ping 																#not working correctly, not pingable
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.16.249: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.23.120: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtDNS -m ping 																#not working correctly, not pingable
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ 
+=====================================================================================================
+DOUBT-5 
+same as DOUBT-4:
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 84
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+ubuntu@ip-172-31-18-245:~$ cat 7invF 
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+3.7.251.59 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping -u ubuntu --private-key work_lp.pem 			#same command and invF in doubt-3, but here it is working fine.
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping -u ubuntu --private-key pavan_lp.pem  	#here it shouldnt able to ping first ip as it has work_lp.pem, not working fine.
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+3.7.251.59 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubIP -m ping 										# working as expectedly by taking values present after ip in inv file as we have not provided via cli.
+3.7.251.59 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+13.200.21.198 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubDNS -m ping 										# both should work fine, but both are failing. WHY?
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-13-200-21-198.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-3-7-251-59.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubDNS -m ping -u ubuntu --private-key work_lp.pem  #here only first ip should work, working fine. 
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-3-7-251-59.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubDNS -m ping -u ubuntu --private-key pavan_lp.pem 
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pubDNS -m ping 
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtIP -m ping 
+172.31.16.249 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.16.249: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.23.120: Permission denied (publickey).",
+    "unreachable": true
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtIP -m ping -u ubuntu --private-key work_lp.pem 
+172.31.23.120 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@172.31.23.120: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtIP -m ping -u ubuntu --private-key pavan_lp.pem 
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF pvtIP -m ping 
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ ansible -i 7invF all -m ping 
+13.200.21.198 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@13.200.21.198: Permission denied (publickey).",
+    "unreachable": true
+}
+3.7.251.59 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@3.7.251.59: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-3-7-251-59.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ec2-13-200-21-198.ap-south-1.compute.amazonaws.com: Permission denied (publickey).",
+    "unreachable": true
+}
+ip-172-31-16-249.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-16-249.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+ip-172-31-23-120.ap-south-1.compute.internal | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ubuntu@ip-172-31-23-120.ap-south-1.compute.internal: Permission denied (publickey).",
+    "unreachable": true
+}
+172.31.23.120 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+172.31.16.249 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu@ip-172-31-18-245:~$ 
+
+===============================================================================================================================================================
+
+DETAILS: 
+ubuntu@ip-172-31-18-245:~$ ls -ltr
+total 84
+-rw-r--r-- 1 ubuntu ubuntu  1175 Oct  2 09:35 hosts
+drwxrwxr-x 2 ubuntu ubuntu  4096 Oct  2 09:35 roles
+-rw-r--r-- 1 ubuntu ubuntu 39584 Oct  2 09:36 ansible.cfg
+-rw-rw-r-- 1 ubuntu ubuntu    17 Oct  2 09:36 1invF
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 work_lp.pem
+-r-------- 1 ubuntu ubuntu  1675 Oct  2 09:37 pavan_lp.pem
+-rw-rw-r-- 1 ubuntu ubuntu   130 Oct  2 09:46 2invF
+-rw-rw-r-- 1 ubuntu ubuntu   164 Oct  2 09:48 3invF
+-rw-rw-r-- 1 ubuntu ubuntu   220 Oct  2 10:02 4invF
+-rw-rw-r-- 1 ubuntu ubuntu   432 Oct  2 10:15 5invF
+-rw-rw-r-- 1 ubuntu ubuntu   488 Oct  2 10:26 6invF
+-rw-rw-r-- 1 ubuntu ubuntu   711 Oct  2 10:34 7invF
+ubuntu@ip-172-31-18-245:~$ cat 1invF 2invF 3invF 4invF 5invF 6invF 7invF 
+13.200.21.198  
+
+13.200.21.198  
+
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+172.31.16.249
+
+ip-172-31-16-249.ap-south-1.compute.internal
+
+[pubIP]
+13.200.21.198  
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+[pvtIP]
+172.31.16.249
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem 
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+
+[pvtIP]
+172.31.16.249
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem 
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtIP]
+172.31.16.249
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+[pvtDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem 
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=wor_lp.pem
+
+[pvtIP]
+172.31.16.249
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+[pvtDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pubIP]
+13.200.21.198 ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+3.7.251.59 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pubDNS]
+ec2-13-200-21-198.ap-south-1.compute.amazonaws.com ansible_user=ubuntu ansible_ssh_pvt_key_file=work_lp.pem
+ec2-3-7-251-59.ap-south-1.compute.amazonaws.com 
+[pubDNS:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=pavan_lp.pem
+
+[pvtIP]
+172.31.16.249
+172.31.23.120 ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+[pvtIP:vars]
+ansible_user=ubuntu
+ansible_ssh_pvt_key_file=work_lp.pem
+
+[pvtDNS]
+ip-172-31-16-249.ap-south-1.compute.internal
+ip-172-31-23-120.ap-south-1.compute.internal ansible_user=ubuntu ansible_ssh_pvt_key_file=pavan_lp.pem
+
+ubuntu@ip-172-31-18-245:~$ 
+
+============================================================================================================================================
